@@ -13,7 +13,7 @@ def main():
     session = Session()
     stmt = select(Book).where(Book.title == 'Робинзон Крузо')
     for book in session.scalars(stmt):
-        print(book)
+        print(book, '\n', book.reviews, '\n', book.reviews[0].text)
 
 
 def fill():
@@ -55,7 +55,7 @@ class Reviews(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
-        return f'От{self.reviewer}'
+        return f'От {self.reviewer}'
 
 
 class User(Base):
