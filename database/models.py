@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 
 from sqlalchemy import String, Integer, DateTime, ForeignKey, create_engine, \
-    Column
+    Column, BigInteger
 from sqlalchemy.orm import relationship, declarative_base, sessionmaker
 
 
@@ -9,30 +9,27 @@ Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = 'users'
-    tg_id = Column(Integer, primary_key=True)
-    city = Column(String(60), nullable=False)
+    __tablename__ = 'Users'
+    id = Column(Integer, primary_key=True)
     connection_date = Column(DateTime, default=dt.now, nullable=False)
-    weather = relationship('WeatherReport',
-                           back_populates='weathers', uselist=False,
-                           lazy=True)
+    tg_id = Column(BigInteger, nullable=False)
+    city = Column(String)
+    reports = relationship('WeatherReports', backref='report',
+                           lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'Человек {self.tg_id} из {self.city}'
+        return self.tg_id
 
 
 class WeatherReport(Base):
-    __tablename__ = 'weathers'
-    id = Column(Integer, primary_key=True)
+    __tablename__ = 'WeatherReports'
+    id = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    date = Column(DateTime, default=dt.now, nullable=False)
     temp = Column(Integer, nullable=False)
     feels_like = Column(Integer, nullable=False)
     wind_speed = Column(Integer, nullable=False)
-    pressure_nm = Column(Integer, nullable=False)
-    weather_date = Column(DateTime, ForeignKey('users.connection_date'),
-                          nullable=False)
-    city_id = Column(String(60), ForeignKey('users.city'), nullable=False)
-    user = relationship('User', back_populates='weathers',
-                        uselist=False, lazy=True)
+    pressure_mm = Column(String, nullable=False)
+    city = Column(String, nullable=False)
 
     def __repr__(self):
-        return f'В {self.city_id} сейчас {self.temp}'
+        return self.city
