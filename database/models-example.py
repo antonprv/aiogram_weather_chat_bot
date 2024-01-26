@@ -37,12 +37,14 @@ def fill():
     session.add(Reviews(text='Мне не понравилось', book_id=1, user_id=2))
     session.commit()
 
+
 class Book(Base):
     __tablename__ = 'books'
     id = Column(Integer, primary_key=True)
     title = Column(String(60), nullable=False)
     author = Column(String(30), nullable=False)
     reviews = relationship('Reviews', backref='book', lazy=True)
+
     def __repr__(self):
         return self.title
 
