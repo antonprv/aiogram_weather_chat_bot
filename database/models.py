@@ -1,8 +1,8 @@
 from datetime import datetime as dt
 
-from sqlalchemy import String, Integer, DateTime, ForeignKey, create_engine, \
-    Column, BigInteger
-from sqlalchemy.orm import relationship, declarative_base, sessionmaker
+from sqlalchemy import String, Integer, DateTime, ForeignKey, Column, \
+    BigInteger
+from sqlalchemy.orm import relationship, declarative_base
 
 
 Base = declarative_base()
@@ -23,7 +23,8 @@ class User(Base):
 
 class WeatherReport(Base):
     __tablename__ = 'WeatherReports'
-    id = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    id = Column(Integer, ForeignKey('Users.id'), primary_key=True,
+                nullable=False)
     date = Column(DateTime, default=dt.now, nullable=False)
     temp = Column(Integer, nullable=False)
     feels_like = Column(Integer, nullable=False)

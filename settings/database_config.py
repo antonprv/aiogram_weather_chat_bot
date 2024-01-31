@@ -1,0 +1,1 @@
+POSTGRE_URL = 'postgresql://postgres:postgres@localhost:5432/postgres'
