@@ -11,11 +11,11 @@ Session = sessionmaker(bind=engine)
 
 # Делаю запрос в БД, и вывожу первую строчку.
 # Если строчка пустая - записываю пользователя в БД.
-def add_user(tg_id):
+def add_user(tg_id, name):
     session = Session()
     user = session.query(User).filter(User.tg_id == tg_id).first()
     if user is None:
-        new_user = User(tg_id=tg_id)
+        new_user = User(tg_id=tg_id, name=name)
         session.add(new_user)
         session.commit()
 
@@ -27,3 +27,10 @@ def set_user_city(tg_id, city):
     user = session.query(User).filter(User.tg_id == tg_id).first()
     user.city = city
     session.commit()
+
+
+def get_user_city(tg_id):
+    session = Session()
+    user = session.query(User).filter(User.tg_id == tg_id).first()
+    city = user.city
+

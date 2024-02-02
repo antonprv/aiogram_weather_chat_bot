@@ -28,7 +28,8 @@ async def main():
 
 @dp.message(CommandStart())
 async def start_message(message: Message):
-    orm.add_user(message.from_user.id)
+    orm.add_user(tg_id=message.from_user.id,
+                 name=message.from_user.first_name)
     text = (f'Привет, {hbold(message.from_user.first_name)}! Я бот,'
             f' который расскажет тебе о погоде на сегодня!')
     await message.answer(text=text)

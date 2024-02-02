@@ -13,6 +13,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     connection_date = Column(DateTime, default=dt.now, nullable=False)
     tg_id = Column(BigInteger, nullable=False)
+    name = Column(String)
     city = Column(String)
     reports = relationship('WeatherReport', backref='report',
                            lazy=True, cascade='all, delete-orphan')
