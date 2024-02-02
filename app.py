@@ -11,7 +11,7 @@ from aiogram.utils.markdown import hbold, hitalic, hunderline, hblockquote
 from aiogram.fsm.context import FSMContext
 
 from settings import bot_config
-from states.states import ChoiceCityWeather
+from states.states import ChoiceCityWeather, SetUserCity
 from keyboards.default.menu import *
 from api_requests import request
 from database import orm
@@ -33,13 +33,6 @@ async def start_message(message: Message):
             f' который расскажет тебе о погоде на сегодня!')
     await message.answer(text=text)
     await show_menu(message)
-
-
-@dp.message(F.text == weather_my_city)
-@dp.message(F.text == weather_history)
-@dp.message(F.text == weather_set_city)
-async def get_user_city_weather(message: Message):
-    await no_such_function
 
 
 @dp.message(F.text == weather_menu)
@@ -66,8 +59,7 @@ async def city_start(message: Message, state: FSMContext):
 @dp.message(ChoiceCityWeather.waiting_city)
 async def city_chosen(message: Message, state: FSMContext):
     if message.text[0].islower():
-        await message.answer(text='Названия городов пишутся'
-                                  ' с большой буквы!😡')
+        await message.answer(text=city_is_lower)
         return
     # Записываем в данные статуса город, и сразу достаём.
     # Хранится всё в оперативной памяти.
@@ -85,8 +77,33 @@ async def city_chosen(message: Message, state: FSMContext):
     await state.clear()
 
 
+@dp.message(F.text == weather_set_city)
+async def set_user_city_start(message: Message, state: FSMContext):
+    btn1 = KeyboardButton(text=weather_menu)
+    markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)
+    text = 'В каком городе проживаете?'
+    await message.answer(text=text, reply_markup=markup)
+    await state.set_state(SetUserCity.waiting_user_city)
+
+
+@dp.message(SetUserCity.waiting_user_city)
+async def user_city_chosen(message: Message, state: FSMContext):
+    if message.text[0].islower():
+        await message.answer(text=city_is_lower)
+        return
+    await state.update_data(cust_user_city=message.text)
+    user_data = await state.get_data()
+    orm.set_user_city(message.from_user.id, user_data.get('cust_user_city'))
+    text = (f'Запомнил! Ваш город - '
+            f'<b>{hitalic(user_data.get("cust_user_city"))}</b>,'
+            f' {hbold(message.from_user.first_name)}!')
+    await show_menu
+    await message.answer(text=text)
+    await state.clear()
+
+
 # Обработчик исключений
-@dp.message(F.chat.func(lambda message: message.text not in weather_buttons))
+@dp.message(F.text)
 async def no_such_function(message: Message):
     btn1 = KeyboardButton(text=weather_menu)
     markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)

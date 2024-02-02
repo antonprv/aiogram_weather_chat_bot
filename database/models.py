@@ -14,7 +14,7 @@ class User(Base):
     connection_date = Column(DateTime, default=dt.now, nullable=False)
     tg_id = Column(BigInteger, nullable=False)
     city = Column(String)
-    reports = relationship('WeatherReports', backref='report',
+    reports = relationship('WeatherReport', backref='report',
                            lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
