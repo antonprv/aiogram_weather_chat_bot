@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models import Base, User
+from .models import Base, User, WeatherReport
 
 from settings import database_config
+from api_requests.request import get_weather
 
 engine = create_engine(database_config.POSTGRE_URL, echo=True)
 Base.metadata.create_all(engine)
@@ -35,3 +36,19 @@ def get_user_city(tg_id):
 
     return user.city
 
+
+# По умолчанию функция берёт город, который пользователь указал как свой.
+# Если указать кастомный город, то запишется, что вот такой-то юзер узнавал
+# про погоду вот тут. Отношение one-to-many.
+def save_report(tg_id, city=None):
+    session = Session()
+    if city is None:
+        city = get_user_city(tg_id)
+    data = get_weather(city)
+    new_report = WeatherReport(temp=data["temp"],
+                               feels_like=data["feels_like"],
+                               wind_speed=data["wind_speed"],
+                               pressure_mm=data["pressure_mm"],
+                               city=city)
+    session.add(new_report)
+    session.commit()

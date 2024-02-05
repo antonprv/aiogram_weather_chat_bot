@@ -1,5 +1,3 @@
-import asyncio
-
 from aiogram.utils.markdown import hitalic, hbold
 
 from api_requests import request

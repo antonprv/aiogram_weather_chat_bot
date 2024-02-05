@@ -1,6 +1,6 @@
 from typing import Any
 
-from aiogram import Dispatcher, Router, F
+from aiogram import F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
@@ -11,6 +11,7 @@ from states import ChoiceCityWeather, SetUserCity
 from loader import dp
 
 
+# "/start"
 @dp.message(CommandStart())
 async def start_message(message: Message):
     orm.add_user(tg_id=message.from_user.id,
@@ -56,6 +57,8 @@ async def city_chosen(message: Message, state: FSMContext):
     # Так как city - словарь, получаем значение по ключу
     # через метод .get
     text = show_weather(city.get('waiting_city'))
+    # Пишем в бд отчёт о погоде.
+    orm.save_report(tg_id=message.from_user.id, city=message.text)
     await message.answer(text=text)
     await show_menu(message)
     await state.clear()
@@ -97,13 +100,6 @@ async def show_my_weather(message: Message):
         await show_menu(message)
     else:
         text = show_weather(city)
+        orm.save_report(tg_id=message.from_user.id)
         await show_menu(message)
         await message.answer(text=text)
-
-
-# Обработчик исключений
-@dp.message(F.text)
-async def no_such_function(message: Message):
-    btn1 = KeyboardButton(text=weather_menu)
-    markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)
-    await message.answer(text=wip_message, reply_markup=markup)
