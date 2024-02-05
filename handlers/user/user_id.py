@@ -1,17 +1,37 @@
 from typing import Any
 
 from aiogram import Dispatcher, Router, F
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
-from states.states import ChoiceCityWeather, SetUserCity
-from keyboards.default.menu import *
 from database import orm
-from app import show_menu
+from keyboards.default.menu import *
+from states import ChoiceCityWeather, SetUserCity
+from loader import dp
 
-dp = Dispatcher()
-router = Router()
-dp.include_router(router)
+
+@dp.message(CommandStart())
+async def start_message(message: Message):
+    orm.add_user(tg_id=message.from_user.id,
+                 name=message.from_user.first_name)
+    text = (f'Привет, {hbold(message.from_user.first_name)}! Я бот,'
+            f' который расскажет тебе о погоде на сегодня!')
+    await message.answer(text=text)
+    await show_menu(message)
+
+
+# Обработчик кнопки меню.
+@dp.message(F.text == weather_menu)
+async def show_menu(message: Message):
+    await message.delete()
+    btn1 = KeyboardButton(text=weather_my_city)
+    btn2 = KeyboardButton(text=weather_other_place)
+    btn3 = KeyboardButton(text=weather_history)
+    btn4 = KeyboardButton(text=weather_set_city)
+    markup = ReplyKeyboardMarkup(keyboard=[[btn1, btn2], [btn3, btn4]],
+                                 resize_keyboard=True, one_time_keyboard=True)
+    await message.answer(text='Меню:', reply_markup=markup)
 
 
 # "Погода в другом месте"
@@ -79,3 +99,11 @@ async def show_my_weather(message: Message):
         text = show_weather(city)
         await show_menu(message)
         await message.answer(text=text)
+
+
+# Обработчик исключений
+@dp.message(F.text)
+async def no_such_function(message: Message):
+    btn1 = KeyboardButton(text=weather_menu)
+    markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)
+    await message.answer(text=wip_message, reply_markup=markup)
