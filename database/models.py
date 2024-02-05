@@ -24,8 +24,8 @@ class User(Base):
 
 class WeatherReport(Base):
     __tablename__ = 'WeatherReports'
-    id = Column(Integer, ForeignKey('Users.id'), primary_key=True,
-                nullable=False)
+    id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     date = Column(DateTime, default=dt.now, nullable=False)
     temp = Column(Integer, nullable=False)
     feels_like = Column(Integer, nullable=False)

@@ -1,9 +1,11 @@
 from typing import Any
+from math import ceil
 
 from aiogram import F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, \
+    InlineKeyboardMarkup, InlineKeyboardButton
 
 from database import orm
 from keyboards.default.menu import *
@@ -13,19 +15,19 @@ from loader import dp
 
 # "/start"
 @dp.message(CommandStart())
-async def start_message(message: Message):
+async def process_start_message(message: Message):
     orm.add_user(tg_id=message.from_user.id,
                  name=message.from_user.first_name)
     text = (f'Привет, {hbold(message.from_user.first_name)}! Я бот,'
             f' который расскажет тебе о погоде на сегодня!')
     await message.answer(text=text)
-    await show_menu(message)
+    await process_show_menu(message)
 
 
 # Обработчик кнопки меню.
 @dp.message(F.text == weather_menu)
-async def show_menu(message: Message):
-    await message.delete()
+async def process_show_menu(message: Message):
+    # await message.delete()
     btn1 = KeyboardButton(text=weather_my_city)
     btn2 = KeyboardButton(text=weather_other_place)
     btn3 = KeyboardButton(text=weather_history)
@@ -37,7 +39,7 @@ async def show_menu(message: Message):
 
 # "Погода в другом месте"
 @dp.message(F.text == weather_other_place)
-async def city_start(message: Message, state: FSMContext):
+async def process_city_start(message: Message, state: FSMContext):
     btn1 = KeyboardButton(text=weather_menu)
     markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)
     text = 'Введите название города'
@@ -46,7 +48,7 @@ async def city_start(message: Message, state: FSMContext):
 
 
 @dp.message(ChoiceCityWeather.waiting_city)
-async def city_chosen(message: Message, state: FSMContext):
+async def process_city_chosen(message: Message, state: FSMContext):
     if message.text[0].islower():
         await message.answer(text=city_is_lower)
         return
@@ -60,13 +62,13 @@ async def city_chosen(message: Message, state: FSMContext):
     # Пишем в бд отчёт о погоде.
     orm.save_report(tg_id=message.from_user.id, city=message.text)
     await message.answer(text=text)
-    await show_menu(message)
+    await process_show_menu(message)
     await state.clear()
 
 
 # "Установить свой город"
 @dp.message(F.text == weather_set_city)
-async def set_user_city_start(message: Message, state: FSMContext):
+async def process_set_user_city_start(message: Message, state: FSMContext):
     btn1 = KeyboardButton(text=weather_menu)
     markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)
     text = 'В каком городе проживаете?'
@@ -75,7 +77,7 @@ async def set_user_city_start(message: Message, state: FSMContext):
 
 
 @dp.message(SetUserCity.waiting_user_city)
-async def user_city_chosen(message: Message, state: FSMContext):
+async def process_user_city_chosen(message: Message, state: FSMContext):
     if message.text[0].islower():
         await message.answer(text=city_is_lower)
         return
@@ -86,20 +88,26 @@ async def user_city_chosen(message: Message, state: FSMContext):
             f'<b>{hitalic(user_data.get("cust_user_city"))}</b>,'
             f' {hbold(message.from_user.first_name)}!')
     await message.answer(text=text)
-    await show_menu(message)
+    await process_show_menu(message)
     await state.clear()
 
 
 # "Погода в моём городе"
 @dp.message(F.text == weather_my_city)
-async def show_my_weather(message: Message):
+async def process_show_my_weather(message: Message):
     city = orm.get_user_city(tg_id=message.from_user.id)
     if city is None:
         text = 'Пожалуйста, установите город проживания.'
         await message.answer(text=text)
-        await show_menu(message)
+        await process_show_menu(message)
     else:
         text = show_weather(city)
         orm.save_report(tg_id=message.from_user.id)
-        await show_menu(message)
+        await process_show_menu(message)
         await message.answer(text=text)
+
+
+# "История"
+@dp.message(F.text == weather_history)
+async def process_get_reports(message: Message):
+    ...

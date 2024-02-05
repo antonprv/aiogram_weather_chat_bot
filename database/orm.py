@@ -10,11 +10,16 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 
+def __current_user__(tg_id):
+    session = Session()
+    return session.query(User).filter(User.tg_id == tg_id).first()
+
+
 # Делаю запрос в БД, и вывожу первую строчку.
 # Если строчка пустая - записываю пользователя в БД.
 def add_user(tg_id, name):
     session = Session()
-    user = session.query(User).filter(User.tg_id == tg_id).first()
+    user = __current_user__(tg_id)
     if user is None:
         new_user = User(tg_id=tg_id, name=name)
         session.add(new_user)
@@ -25,16 +30,12 @@ def add_user(tg_id, name):
 # с таким же id и устанавливает значение для его города проживания.
 def set_user_city(tg_id, city):
     session = Session()
-    user = session.query(User).filter(User.tg_id == tg_id).first()
-    user.city = city
+    __current_user__(tg_id).city = city
     session.commit()
 
 
 def get_user_city(tg_id):
-    session = Session()
-    user = session.query(User).filter(User.tg_id == tg_id).first()
-
-    return user.city
+    return __current_user__(tg_id).city
 
 
 # По умолчанию функция берёт город, который пользователь указал как свой.
@@ -44,11 +45,18 @@ def save_report(tg_id, city=None):
     session = Session()
     if city is None:
         city = get_user_city(tg_id)
+    user = __current_user__(tg_id)
     data = get_weather(city)
-    new_report = WeatherReport(temp=data["temp"],
+    new_report = WeatherReport(user_id=user.id,
+                               temp=data["temp"],
                                feels_like=data["feels_like"],
                                wind_speed=data["wind_speed"],
                                pressure_mm=data["pressure_mm"],
                                city=city)
     session.add(new_report)
     session.commit()
+
+
+def get_reports(tg_id):
+    return __current_user__(tg_id).reports
+
