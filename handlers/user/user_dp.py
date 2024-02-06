@@ -27,23 +27,14 @@ async def process_start_message(message: Message):
 # Обработчик кнопки меню.
 @dp.message(F.text == weather_menu)
 async def process_show_menu(message: Message):
-    # await message.delete()
-    btn1 = KeyboardButton(text=weather_my_city)
-    btn2 = KeyboardButton(text=weather_other_place)
-    btn3 = KeyboardButton(text=weather_history)
-    btn4 = KeyboardButton(text=weather_set_city)
-    markup = ReplyKeyboardMarkup(keyboard=[[btn1, btn2], [btn3, btn4]],
-                                 resize_keyboard=True, one_time_keyboard=True)
-    await message.answer(text='Меню:', reply_markup=markup)
+    await message.answer(text='Меню:', reply_markup=main_menu_markup())
 
 
 # "Погода в другом месте"
 @dp.message(F.text == weather_other_place)
 async def process_city_start(message: Message, state: FSMContext):
-    btn1 = KeyboardButton(text=weather_menu)
-    markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)
     text = 'Введите название города'
-    await message.answer(text=text, reply_markup=markup)
+    await message.answer(text=text, reply_markup=back_to_menu_markup())
     await state.set_state(ChoiceCityWeather.waiting_city)
 
 
@@ -69,10 +60,8 @@ async def process_city_chosen(message: Message, state: FSMContext):
 # "Установить свой город"
 @dp.message(F.text == weather_set_city)
 async def process_set_user_city_start(message: Message, state: FSMContext):
-    btn1 = KeyboardButton(text=weather_menu)
-    markup = ReplyKeyboardMarkup(keyboard=[[btn1]], resize_keyboard=True)
     text = 'В каком городе проживаете?'
-    await message.answer(text=text, reply_markup=markup)
+    await message.answer(text=text, reply_markup=back_to_menu_markup())
     await state.set_state(SetUserCity.waiting_user_city)
 
 
