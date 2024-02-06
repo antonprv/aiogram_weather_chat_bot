@@ -8,17 +8,16 @@ from api_requests.request import get_weather
 engine = create_engine(database_config.POSTGRE_URL, echo=True)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
+session = Session()
 
 
 def __current_user__(tg_id):
-    session = Session()
     return session.query(User).filter(User.tg_id == tg_id).first()
 
 
 # Делаю запрос в БД, и вывожу первую строчку.
 # Если строчка пустая - записываю пользователя в БД.
 def add_user(tg_id, name):
-    session = Session()
     user = __current_user__(tg_id)
     if user is None:
         new_user = User(tg_id=tg_id, name=name)
@@ -29,7 +28,6 @@ def add_user(tg_id, name):
 # Принимает id пользователя и город и потом ищет в БД пользователя
 # с таким же id и устанавливает значение для его города проживания.
 def set_user_city(tg_id, city):
-    session = Session()
     __current_user__(tg_id).city = city
     session.commit()
 
@@ -42,7 +40,6 @@ def get_user_city(tg_id):
 # Если указать кастомный город, то запишется, что вот такой-то юзер узнавал
 # про погоду вот тут. Отношение one-to-many.
 def save_report(tg_id, city=None):
-    session = Session()
     if city is None:
         city = get_user_city(tg_id)
     user = __current_user__(tg_id)
