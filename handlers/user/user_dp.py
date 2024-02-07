@@ -1,16 +1,16 @@
 from typing import Any
-from math import ceil
 
 from aiogram import F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery
+from aiogram.utils.markdown import hitalic, hbold
 
 from database import orm
-from keyboards.default.menu import *
-from states import ChoiceCityWeather, SetUserCity
+import keyboards as kb
+from keyboards import ButtonCallback
 from loader import dp
+from states import ChoiceCityWeather, SetUserCity
 
 
 # "/start"
@@ -25,23 +25,23 @@ async def process_start_message(message: Message):
 
 
 # Обработчик кнопки меню.
-@dp.message(F.text == weather_menu)
+@dp.message(F.text == kb.weather_menu)
 async def process_show_menu(message: Message):
-    await message.answer(text='Меню:', reply_markup=main_menu_markup())
+    await message.answer(text='Меню:', reply_markup=kb.main_menu_markup())
 
 
 # "Погода в другом месте"
-@dp.message(F.text == weather_other_place)
+@dp.message(F.text == kb.weather_other_place)
 async def process_city_start(message: Message, state: FSMContext):
     text = 'Введите название города'
-    await message.answer(text=text, reply_markup=back_to_menu_markup())
+    await message.answer(text=text, reply_markup=kb.back_to_menu_markup())
     await state.set_state(ChoiceCityWeather.waiting_city)
 
 
 @dp.message(ChoiceCityWeather.waiting_city)
 async def process_city_chosen(message: Message, state: FSMContext):
     if message.text[0].islower():
-        await message.answer(text=city_is_lower)
+        await message.answer(text=kb.city_is_lower)
         return
     # Записываем в данные статуса город, и сразу достаём.
     # Хранится всё в оперативной памяти.
@@ -49,7 +49,7 @@ async def process_city_chosen(message: Message, state: FSMContext):
     city: dict[str, Any] = await state.get_data()
     # Так как city - словарь, получаем значение по ключу
     # через метод .get
-    text = show_weather(city.get('waiting_city'))
+    text = kb.show_weather(city.get('waiting_city'))
     # Пишем в бд отчёт о погоде.
     orm.save_report(tg_id=message.from_user.id, city=message.text)
     await message.answer(text=text)
@@ -58,17 +58,17 @@ async def process_city_chosen(message: Message, state: FSMContext):
 
 
 # "Установить свой город"
-@dp.message(F.text == weather_set_city)
+@dp.message(F.text == kb.weather_set_city)
 async def process_set_user_city_start(message: Message, state: FSMContext):
     text = 'В каком городе проживаете?'
-    await message.answer(text=text, reply_markup=back_to_menu_markup())
+    await message.answer(text=text, reply_markup=kb.back_to_menu_markup())
     await state.set_state(SetUserCity.waiting_user_city)
 
 
 @dp.message(SetUserCity.waiting_user_city)
 async def process_user_city_chosen(message: Message, state: FSMContext):
     if message.text[0].islower():
-        await message.answer(text=city_is_lower)
+        await message.answer(text=kb.city_is_lower)
         return
     await state.update_data(cust_user_city=message.text)
     user_data = await state.get_data()
@@ -82,21 +82,29 @@ async def process_user_city_chosen(message: Message, state: FSMContext):
 
 
 # "Погода в моём городе"
-@dp.message(F.text == weather_my_city)
+@dp.message(F.text == kb.weather_my_city)
 async def process_show_my_weather(message: Message):
     city = orm.get_user_city(tg_id=message.from_user.id)
     if city is None:
-        text = 'Пожалуйста, установите город проживания.'
+        text = 'Сначала вам нужно <b>установить свой город</b>.'
         await message.answer(text=text)
         await process_show_menu(message)
     else:
-        text = show_weather(city)
+        text = kb.show_weather(city=city)
         orm.save_report(tg_id=message.from_user.id)
         await process_show_menu(message)
         await message.answer(text=text)
 
 
 # "История"
-@dp.message(F.text == weather_history)
+@dp.message(F.text == kb.weather_history)
 async def process_get_reports(message: Message):
-    ...
+    reports = orm.get_reports(message.from_user.id)
+    markup = kb.history_page_markup(reports=reports)
+    await message.answer(text='История запросов', reply_markup=markup)
+
+
+@dp.callback_query(ButtonCallback.filter(F.cb_prefix == 'next'))
+async def process_history_next(query: CallbackQuery,
+                               callback_query: CallbackQuery,
+                               state: FSMContext):
