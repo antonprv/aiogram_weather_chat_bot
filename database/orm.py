@@ -14,6 +14,10 @@ session = Session()
 def __current_user__(tg_id):
     return session.query(User).filter(User.tg_id == tg_id).first()
 
+def __current_report__(report_id):
+    return (session.query(WeatherReport).filter(WeatherReport.id == report_id)
+            .first())
+
 
 # Делаю запрос в БД, и вывожу первую строчку.
 # Если строчка пустая - записываю пользователя в БД.
@@ -57,3 +61,10 @@ def save_report(tg_id, city=None):
 def get_reports(tg_id):
     return __current_user__(tg_id).reports
 
+
+def get_report_details(report_id):
+    report = __current_report__(report_id=report_id)
+    return report
+
+
+def delete_report(report_id):

@@ -8,3 +8,7 @@ class ChoiceCityWeather(StatesGroup):
 
 class SetUserCity(StatesGroup):
     waiting_user_city = State()
+
+
+class ShowHistory(StatesGroup):
+    history_viewing = State()
