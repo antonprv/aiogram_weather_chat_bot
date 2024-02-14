@@ -2,15 +2,22 @@ from math import ceil
 
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder, \
-    InlineKeyboardMarkup, InlineKeyboardButton
+    InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, \
+    ReplyKeyboardMarkup
 from aiogram.utils.markdown import hbold
 
 from settings.bot_config import HISTORY_ITEMS
 from database import orm
 from loader import bot
+from keyboards import weather_menu
 
 next_btn = 'Вперёд ➡'
 back_btn = 'Назад ⬅'
+
+delete_all_reps = 'Очистить историю ❌'
+are_you_sure = 'Вы уверены?'
+hist_yes = 'Да 💔'
+hist_no = 'Пожалуй, ещё подумаю 🤔'
 
 
 class ButtonCallback(CallbackData, prefix='btn'):
@@ -81,3 +88,20 @@ def history_report_text(report_id):
             f'Давление {report.pressure_mm}мм.')
 
     return text
+
+
+def history_delete_all(tg_id):
+    btn1 = KeyboardButton(text=weather_menu)
+    btn2 = KeyboardButton(text=delete_all_reps)
+    markup = ReplyKeyboardMarkup(keyboard=[[btn1], [btn2]], resize_keyboard=True)
+    return markup
+
+
+def history_confirm_deletion(tg_id):
+    confirm_btn_cb = ButtonCallback(cb_prefix='his_yes', cb_id=tg_id)
+    decline_btn_cb = ButtonCallback(cb_prefix='his_no', cb_id=tg_id)
+
+    btn1 = InlineKeyboardButton(text=hist_yes)
+    btn2 = InlineKeyboardButton(text=hist_no)
+    markup = InlineKeyboardMarkup(inline_keyboard=[[btn1, btn2]])
+    return markup

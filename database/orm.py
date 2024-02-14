@@ -68,3 +68,12 @@ def get_report_details(report_id):
 
 
 def delete_report(report_id):
+    report = session.get(WeatherReport, report_id)
+    session.delete(report)
+    session.commit()
+
+
+def delete_all_reports(tg_id):
+    reports = get_reports(tg_id=tg_id)
+    session.delete(reports)
+    session.commit()
