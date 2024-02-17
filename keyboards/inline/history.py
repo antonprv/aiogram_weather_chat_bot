@@ -18,6 +18,7 @@ delete_all_reps = 'Очистить историю ❌'
 are_you_sure = 'Вы уверены?'
 hist_yes = 'Да 💔'
 hist_no = 'Пожалуй, ещё подумаю 🤔'
+empty = 'Тут ничего нет 😔'
 
 
 class ButtonCallback(CallbackData, prefix='btn'):
@@ -52,8 +53,14 @@ def history_page_markup(reports: dict[str], start_index: int = 0,
     page_b_cb = ButtonCallback(cb_prefix='back', cb_id=start_index)
     btn3 = InlineKeyboardButton(text=back_btn,
                                 callback_data=page_b_cb.pack())
+    btn4 = InlineKeyboardButton(text=empty,
+                                callback_data='None')
 
-    if curr_page == 1:
+    if total_pages == 0:
+        markup = InlineKeyboardMarkup(inline_keyboard=[[btn4]])
+    elif total_pages == 1:
+        markup = InlineKeyboardMarkup(inline_keyboard=[[btn1]])
+    elif curr_page == 1:
         markup = InlineKeyboardMarkup(inline_keyboard=[[btn1, btn2]])
     elif curr_page == total_pages:
         markup = InlineKeyboardMarkup(inline_keyboard=[[btn3, btn1]])

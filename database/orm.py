@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import delete
+
 from .models import Base, User, WeatherReport
 
 from settings import database_config
@@ -74,6 +76,7 @@ def delete_report(report_id):
 
 
 def delete_all_reports(tg_id):
-    reports = get_reports(tg_id=tg_id)
-    session.delete(reports)
+    usr_id = __current_user__(tg_id=tg_id).id
+    del_reports = delete(WeatherReport).where(WeatherReport.user_id == usr_id)
+    session.execute(del_reports)
     session.commit()
