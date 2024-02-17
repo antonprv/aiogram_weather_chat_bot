@@ -28,9 +28,9 @@ async def process_get_reports(message: Message, state: FSMContext):
     data = await state.get_data()
     markup = kb.history_page_markup(reports=data.get('reports'))
     await message.answer(text=msg1,
-                         reply_markup=kb.history_delete_all(tg_id=tg_id))
+                          reply_markup=kb.history_delete_all(tg_id=tg_id))
     await message.answer(text=msg2,
-                         reply_markup=markup)
+                          reply_markup=markup)
 
 
 @dp.callback_query(ShowHistory.history_viewing,
@@ -117,9 +117,36 @@ async def process_delete_report(query: CallbackQuery,
 
 @dp.message(F.text == kb.delete_all_reps)
 async def process_clear_history(message: Message):
+    tg_id = message.from_user.id
     await message.answer(text=kb.are_you_sure,
-                         reply_markup=kb.history_confirm_deletion())
+                         reply_markup=kb.history_confirm_deletion(tg_id=tg_id))
 
+
+@dp.callback_query(ShowHistory.history_viewing,
+    ButtonCallback.filter(F.cb_prefix == 'his_yes'))
+async def delete_history_yes(query: CallbackQuery, state: FSMContext):
+    tg_id = query.from_user.id
+    orm.delete_all_reports(tg_id=tg_id)
+    await query.message.answer(text='Вся история удалена')
+    await state.clear()
+    await process_show_menu(is_query=True, query=query)
+
+@dp.callback_query(ShowHistory.history_viewing,
+    ButtonCallback.filter(F.cb_prefix == 'his_no'))
+async def process_check_answer(query: CallbackQuery,
+                               callback_data: ButtonCallback,
+                               state: FSMContext):
+    await state.clear()
+    tg_id = query.message.from_user.id
+    reports = orm.get_reports(tg_id=tg_id)
+    await state.set_state(ShowHistory.history_viewing)
+    await state.update_data(reports=reports, start_index=0, curr_page=1)
+    data = await state.get_data()
+    markup = kb.history_page_markup(reports=data.get('reports'))
+    await query.message.answer(text=msg1,
+                         reply_markup=kb.history_delete_all(tg_id=tg_id))
+    await query.message.answer(text=msg2,
+                         reply_markup=markup)
 
 
 @dp.message(ShowHistory.history_viewing, F.text == kb.weather_menu)

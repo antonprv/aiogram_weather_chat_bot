@@ -101,7 +101,9 @@ def history_confirm_deletion(tg_id):
     confirm_btn_cb = ButtonCallback(cb_prefix='his_yes', cb_id=tg_id)
     decline_btn_cb = ButtonCallback(cb_prefix='his_no', cb_id=tg_id)
 
-    btn1 = InlineKeyboardButton(text=hist_yes)
-    btn2 = InlineKeyboardButton(text=hist_no)
-    markup = InlineKeyboardMarkup(inline_keyboard=[[btn1, btn2]])
+    btn1 = InlineKeyboardButton(text=hist_yes,
+                                callback_data=confirm_btn_cb.pack())
+    btn2 = InlineKeyboardButton(text=hist_no,
+                                callback_data=decline_btn_cb.pack())
+    markup = InlineKeyboardMarkup(inline_keyboard=[[btn1], [btn2]])
     return markup

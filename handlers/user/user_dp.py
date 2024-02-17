@@ -27,8 +27,14 @@ async def process_start_message(message: Message):
 
 # Обработчик кнопки меню.
 @dp.message(F.text == kb.weather_menu)
-async def process_show_menu(message: Message):
-    await message.answer(text='Меню:', reply_markup=kb.main_menu_markup())
+async def process_show_menu(message: Message = None,
+                            query: CallbackQuery = None,
+                            is_query: bool = False):
+    if is_query:
+        await query.message.answer(text='Меню:',
+                                   reply_markup=kb.main_menu_markup())
+    else:
+        await message.answer(text='Меню:', reply_markup=kb.main_menu_markup())
 
 
 # "Погода в другом месте"
