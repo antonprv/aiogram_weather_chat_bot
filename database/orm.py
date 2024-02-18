@@ -80,3 +80,7 @@ def delete_all_reports(tg_id):
     del_reports = delete(WeatherReport).where(WeatherReport.user_id == usr_id)
     session.execute(del_reports)
     session.commit()
+
+
+def get_all_users():
+    return session.query(User).all()
