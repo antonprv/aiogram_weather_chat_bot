@@ -1,6 +1,5 @@
 from math import ceil
 
-from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder, \
     InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, \
     ReplyKeyboardMarkup
@@ -9,7 +8,10 @@ from aiogram.utils.markdown import hbold
 from settings.bot_config import HISTORY_ITEMS
 from database import orm
 from loader import bot
-from keyboards import weather_menu
+from keyboards import weather_menu, ButtonCallback
+
+msg1: str = 'Вы перешли в раздел истории'
+msg2: str = '<b>Все ваши запросы:</b>'
 
 next_btn = 'Вперёд ➡'
 back_btn = 'Назад ⬅'
@@ -19,11 +21,6 @@ are_you_sure = 'Вы уверены?'
 hist_yes = 'Да 💔'
 hist_no = 'Пожалуй, ещё подумаю 🤔'
 empty = 'Тут ничего нет 😔'
-
-
-class ButtonCallback(CallbackData, prefix='btn'):
-    cb_prefix: str
-    cb_id: int
 
 
 # Пагинация страниц истории.

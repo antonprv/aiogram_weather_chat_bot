@@ -15,9 +15,6 @@ from settings.bot_config import HISTORY_ITEMS
 from .user_dp import dp, process_show_menu
 from loader import bot
 
-msg1: str = 'Вы перешли в раздел истории'
-msg2: str = '<b>Все ваши запросы:</b>'
-
 
 @dp.message(F.text == kb.weather_history)
 async def process_get_reports(message: Message, state: FSMContext):
@@ -27,9 +24,9 @@ async def process_get_reports(message: Message, state: FSMContext):
     await state.update_data(reports=reports, start_index=0, curr_page=1)
     data = await state.get_data()
     markup = kb.history_page_markup(reports=data.get('reports'))
-    await message.answer(text=msg1,
+    await message.answer(text=kb.msg1,
                          reply_markup=kb.history_delete_all(tg_id=tg_id))
-    await message.answer(text=msg2,
+    await message.answer(text=kb.msg2,
                          reply_markup=markup)
 
 
@@ -92,7 +89,7 @@ async def process_report_return(query: CallbackQuery, state: FSMContext,
     curr_page = data.get('curr_page')
     markup = kb.history_page_markup(reports=reports, start_index=start_index,
                                     curr_page=curr_page)
-    await query.message.edit_text(text=msg1)
+    await query.message.edit_text(text=kb.msg1)
     await query.message.edit_reply_markup(reply_markup=markup)
 
 
@@ -112,7 +109,7 @@ async def process_delete_report(query: CallbackQuery,
     markup = kb.history_page_markup(reports=reports, start_index=start_index,
                                     curr_page=curr_page)
     await query.answer(text='Отчёт удалён ✅')
-    await query.message.edit_text(text=msg1)
+    await query.message.edit_text(text=kb.msg1)
     await query.message.edit_reply_markup(reply_markup=markup)
 
 

@@ -1,1 +1,1 @@
-from .states import ChoiceCityWeather, SetUserCity, ShowHistory
+from .states import ChoiceCityWeather, SetUserCity, ShowHistory, AdminPanel

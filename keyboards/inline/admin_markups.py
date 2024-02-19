@@ -1,14 +1,18 @@
 from math import ceil
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder, \
-    InlineKeyboardMarkup, InlineKeyboardButton
+    InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, \
+    KeyboardButton
 
 from database import orm
 from keyboards import ButtonCallback
 from settings.bot_config import TG_BOT_ADMINS, ADMIN_HISTORY_ITEMS
 
+greet = 'Вы перешли в админ-панель'
+user_list = 'Список пользователей:'
+combined = greet + '\n' + user_list
+
 administrator = 'Администратор'
-user_list = 'Список пользователей'
 
 next_btn = 'Вперёд ➡'
 back_btn = 'Назад ⬅'
@@ -20,8 +24,6 @@ def check_text_filter(text: str):
     return (lambda message: message.from_user.id in TG_BOT_ADMINS
                             and message.txt == text)
 
-def admin panel_
-
 
 def users_page_markup(users: dict[str], start_index: int = 0,
                       curr_page: int = 1):
@@ -31,7 +33,8 @@ def users_page_markup(users: dict[str], start_index: int = 0,
 
     for user in users[start_index:end_index]:
         if user.id in TG_BOT_ADMINS:
-            text = (f'{user.name} (Администратор) {user.connection_date.day}.'
+            text = (f'{user.name} ({administrator})'
+                    f' {user.connection_date.day}.'
                     f'{user.connection_date.month}'
                     f'.{user.connection_date.year}')
         else:
@@ -74,17 +77,27 @@ def users_page_markup(users: dict[str], start_index: int = 0,
     return builder.as_markup()
 
 
-def history_report_markup(report_id, curr_page_data):
+def admin_user_markup(usr_id, curr_page_data):
+    tg_id = orm.get_user_tg_id(usr_id=usr_id)
     back_btn_cb = ButtonCallback(cb_prefix='return', cb_id=curr_page_data)
-    delete_btn_cb = ButtonCallback(cb_prefix='delete', cb_id=report_id)
+    details_btn_cb = ButtonCallback(cb_prefix='details', cb_id=tg_id)
     btn1 = InlineKeyboardButton(text='Вернуться',
                                 callback_data=back_btn_cb.pack())
-    btn2 = InlineKeyboardButton(text='Посмотреть запросы')
-    markup = InlineKeyboardMarkup(inline_keyboard=[[btn1, btn2]])
+    btn2 = InlineKeyboardButton(text='Посмотреть запросы',
+                                callback_data=details_btn_cb.pack())
+    markup = InlineKeyboardMarkup(inline_keyboard=[[btn1], [btn2]])
     return markup
 
 
-def history_report_text(usr_id):
+def admin_user_details_markup(curr_page_data):
+    back_btn_cb = ButtonCallback(cb_prefix='return', cb_id=curr_page_data)
+    btn1 = InlineKeyboardButton(text='Вернуться',
+                                callback_data=back_btn_cb.pack())
+    markup = InlineKeyboardMarkup(inline_keyboard=[[btn1]])
+    return markup
+
+
+def admin_user_text(usr_id):
     user = orm.get_user_data(usr_id)
     text = (f'Имя пользователя: {user.name},'
             f'\nГород пользователя: {user.city},'
@@ -97,6 +110,3 @@ def history_report_text(usr_id):
             f'{user.connection_date.minute}')
 
     return text
-
-
-

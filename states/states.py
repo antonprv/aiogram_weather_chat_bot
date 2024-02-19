@@ -12,3 +12,7 @@ class SetUserCity(StatesGroup):
 
 class ShowHistory(StatesGroup):
     history_viewing = State()
+
+
+class AdminPanel(StatesGroup):
+    panel_viewing = State()
