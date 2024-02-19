@@ -84,3 +84,6 @@ def delete_all_reports(tg_id):
 
 def get_all_users():
     return session.query(User).all()
+
+def get_user_data(usr_id):
+    return session.query(User).filter_by(User.id == usr_id)

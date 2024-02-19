@@ -1,23 +1,9 @@
-from typing import Any
-
-from aiogram import F
-from aiogram.filters import CommandStart
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
-from aiogram.utils.markdown import hitalic, hbold
-from aiogram.utils.keyboard import InlineKeyboardBuilder, \
-    InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, \
+from aiogram.types import Message
+from aiogram.utils.keyboard import KeyboardButton, \
     ReplyKeyboardMarkup
 
-from database import orm
 import keyboards as kb
-from keyboards import ButtonCallback
 from loader import dp
-from states import ChoiceCityWeather, SetUserCity
-from loader import bot
-from settings.bot_config import TG_BOT_ADMINS
-
-
 
 
 @dp.message(kb.check_text_filter(kb.administrator))

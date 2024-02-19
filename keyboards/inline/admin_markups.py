@@ -1,21 +1,10 @@
-from typing import Any
 from math import ceil
 
-from aiogram import F
-from aiogram.filters import CommandStart
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
-from aiogram.utils.markdown import hitalic, hbold
 from aiogram.utils.keyboard import InlineKeyboardBuilder, \
-    InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, \
-    ReplyKeyboardMarkup
+    InlineKeyboardMarkup, InlineKeyboardButton
 
 from database import orm
-import keyboards as kb
 from keyboards import ButtonCallback
-from loader import dp
-from states import ChoiceCityWeather, SetUserCity
-from loader import bot
 from settings.bot_config import TG_BOT_ADMINS, ADMIN_HISTORY_ITEMS
 
 administrator = 'Администратор'
@@ -26,9 +15,12 @@ back_btn = 'Назад ⬅'
 
 empty = 'Пока нет пользователей :('
 
+
 def check_text_filter(text: str):
     return (lambda message: message.from_user.id in TG_BOT_ADMINS
                             and message.txt == text)
+
+def admin panel_
 
 
 def users_page_markup(users: dict[str], start_index: int = 0,
@@ -87,8 +79,24 @@ def history_report_markup(report_id, curr_page_data):
     delete_btn_cb = ButtonCallback(cb_prefix='delete', cb_id=report_id)
     btn1 = InlineKeyboardButton(text='Вернуться',
                                 callback_data=back_btn_cb.pack())
-    btn2 = InlineKeyboardButton(text='Удалить',
-                                callback_data=delete_btn_cb.pack())
-
+    btn2 = InlineKeyboardButton(text='Посмотреть запросы')
     markup = InlineKeyboardMarkup(inline_keyboard=[[btn1, btn2]])
     return markup
+
+
+def history_report_text(usr_id):
+    user = orm.get_user_data(usr_id)
+    text = (f'Имя пользователя: {user.name},'
+            f'\nГород пользователя: {user.city},'
+            f'\nДата подключения'
+            f'{user.connecton_date.day}.'
+            f'{user.connection_date.month}.'
+            f'{user.connection_date.year}, '
+            f'\nЛокальное время подключения:'
+            f'{user.connecton_date.hour}:'
+            f'{user.connection_date.minute}')
+
+    return text
+
+
+
