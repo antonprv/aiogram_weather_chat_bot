@@ -8,7 +8,8 @@ from aiogram.utils.markdown import hbold
 from settings.bot_config import HISTORY_ITEMS
 from database import orm
 from loader import bot
-from keyboards import weather_menu, ButtonCallback
+from keyboards import weather_menu
+from ..callback_class import ButtonCallback
 
 msg1: str = 'Вы перешли в раздел истории'
 msg2: str = '<b>Все ваши запросы:</b>'
@@ -97,7 +98,8 @@ def history_report_text(report_id):
 def history_delete_all(tg_id):
     btn1 = KeyboardButton(text=weather_menu)
     btn2 = KeyboardButton(text=delete_all_reps)
-    markup = ReplyKeyboardMarkup(keyboard=[[btn1], [btn2]], resize_keyboard=True)
+    markup = ReplyKeyboardMarkup(keyboard=[[btn1], [btn2]],
+                                 resize_keyboard=True)
     return markup
 
 

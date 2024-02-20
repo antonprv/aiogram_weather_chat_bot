@@ -4,7 +4,7 @@ from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from states import AdminPanel
+from states import AdminPanel, ShowHistory
 from database import orm
 import keyboards as kb
 from loader import dp
@@ -17,7 +17,7 @@ from keyboards import ButtonCallback
 async def process_admin_panel(message: Message, state: FSMContext):
     users = orm.get_all_users()
     await state.set_state(AdminPanel.panel_viewing)
-    await state.update_data(users=users, start_index=0, curr_page=1)
+    await state.update_data(users=users, adm_start_index=0, adm_curr_page=1)
     data = await state.get_data()
     markup = kb.users_page_markup(users=data.get('users'))
     await process_show_menu(message=message)
@@ -33,13 +33,13 @@ async def process_history_buttons(query: CallbackQuery, state: FSMContext,
                                   callback_data: ButtonCallback):
     data = await state.get_data()
     users = data.get('users')
-    start_index = data.get('start_index')
-    curr_page = data.get('curr_page')
+    start_index = data.get('adm_start_index')
+    curr_page = data.get('adm_curr_page')
 
     if callback_data.cb_prefix == 'next':
         start_index += ADMIN_HISTORY_ITEMS
         curr_page += 1
-        await state.update_data(start_index=start_index, curr_page=curr_page)
+        await state.update_data(adm_start_index=start_index, adm_curr_page=curr_page)
 
         markup = kb.users_page_markup(users=users, start_index=start_index,
                                       curr_page=curr_page)
@@ -47,7 +47,7 @@ async def process_history_buttons(query: CallbackQuery, state: FSMContext,
     elif callback_data.cb_prefix == 'back':
         start_index -= ADMIN_HISTORY_ITEMS
         curr_page -= 1
-        await state.update_data(start_index=start_index, curr_page=curr_page)
+        await state.update_data(adm_start_index=start_index, adm_curr_page=curr_page)
 
         markup = kb.users_page_markup(users=users, start_index=start_index,
                                       curr_page=curr_page)
@@ -73,7 +73,7 @@ async def process_report_details(query: CallbackQuery, state: FSMContext,
 async def process_report_return(query: CallbackQuery, state: FSMContext,
                                 callback_data: ButtonCallback):
     start_index = callback_data.cb_id
-    await state.update_data(start_index=start_index)
+    await state.update_data(adm_start_index=start_index)
     data = await state.get_data()
     users = data.get('users')
     start_index = data.get('start_index')
@@ -86,6 +86,28 @@ async def process_report_return(query: CallbackQuery, state: FSMContext,
 
 @dp.callback_query(AdminPanel.panel_viewing,
                    ButtonCallback.filter(F.cb_prefix == 'details'))
-def show_user_reports(query: CallbackQuery, state: FSMContext,
-                      callback_data: ButtonCallback):
+async def show_user_reports(query: CallbackQuery, state: FSMContext,
+                            callback_data: ButtonCallback):
+    usr_id = callback_data.cb_id
+    tg_id = orm.get_user_tg_id(usr_id)
+    await query.message.delete()
+    reports = orm.get_reports(tg_id=tg_id)
+    await state.update_data(reports=reports, start_index=0, curr_page=1)
+    data = await state.get_data()
+    markup = kb.history_page_markup(reports=data.get('reports'))
+    await query.message.answer(text=kb.user_reports_text(usr_id=usr_id),
+                               reply_markup=markup)
 
+
+@dp.callback_query(AdminPanel.panel_viewing,
+                   ButtonCallback.filter(F.cb_prefix == 'report'))
+async def process_report_details(query: CallbackQuery, state: FSMContext,
+                                 callback_data: ButtonCallback):
+    report_id = callback_data.cb_id
+    text = kb.history_report_text(report_id=report_id)
+    data = await state.get_data()
+    markup = kb.admin_report_details_markup(
+        curr_page_data=data.get('start_index'))
+
+    await query.message.edit_text(text=text)
+    await query.message.edit_reply_markup(reply_markup=markup)

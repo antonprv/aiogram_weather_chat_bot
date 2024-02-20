@@ -5,7 +5,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, \
     KeyboardButton
 
 from database import orm
-from keyboards import ButtonCallback
+from ..callback_class import ButtonCallback
 from settings.bot_config import TG_BOT_ADMINS, ADMIN_HISTORY_ITEMS
 
 greet = 'Вы перешли в админ-панель'
@@ -20,9 +20,14 @@ back_btn = 'Назад ⬅'
 empty = 'Пока нет пользователей :('
 
 
+def user_reports_text(usr_id):
+    name = orm.get_user_data(usr_id).name
+    return f'Все запросы пользователя {name}'
+
+
 def check_text_filter(text: str):
     return (lambda message: message.from_user.id in TG_BOT_ADMINS
-                            and message.txt == text)
+                            and message.text == text)цв
 
 
 def users_page_markup(users: dict[str], start_index: int = 0,
@@ -89,7 +94,7 @@ def admin_user_markup(usr_id, curr_page_data):
     return markup
 
 
-def admin_user_details_markup(curr_page_data):
+def admin_report_details_markup(curr_page_data):
     back_btn_cb = ButtonCallback(cb_prefix='return', cb_id=curr_page_data)
     btn1 = InlineKeyboardButton(text='Вернуться',
                                 callback_data=back_btn_cb.pack())
