@@ -27,7 +27,7 @@ def user_reports_text(usr_id):
 
 def check_text_filter(text: str):
     return (lambda message: message.from_user.id in TG_BOT_ADMINS
-                            and message.text == text)цв
+                            and message.text == text)
 
 
 def users_page_markup(users: dict[str], start_index: int = 0,
