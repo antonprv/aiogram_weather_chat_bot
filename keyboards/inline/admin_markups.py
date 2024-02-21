@@ -37,7 +37,7 @@ def users_page_markup(users: dict[str], start_index: int = 0,
     end_index = min(start_index + ADMIN_HISTORY_ITEMS, len(users))
 
     for user in users[start_index:end_index]:
-        if user.id in TG_BOT_ADMINS:
+        if user.tg_id in TG_BOT_ADMINS:
             text = (f'{user.name} ({administrator})'
                     f' {user.connection_date.day}.'
                     f'{user.connection_date.month}'
@@ -106,12 +106,12 @@ def admin_user_text(usr_id):
     user = orm.get_user_data(usr_id)
     text = (f'Имя пользователя: {user.name},'
             f'\nГород пользователя: {user.city},'
-            f'\nДата подключения'
-            f'{user.connecton_date.day}.'
+            f'\nДата подключения: '
+            f'{user.connection_date.day}.'
             f'{user.connection_date.month}.'
             f'{user.connection_date.year}, '
-            f'\nЛокальное время подключения:'
-            f'{user.connecton_date.hour}:'
+            f'\nЛокальное время подключения: '
+            f'{user.connection_date.hour}:'
             f'{user.connection_date.minute}')
 
     return text

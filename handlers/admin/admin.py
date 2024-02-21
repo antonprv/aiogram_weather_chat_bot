@@ -59,10 +59,11 @@ async def process_history_buttons(query: CallbackQuery, state: FSMContext,
 async def process_report_details(query: CallbackQuery, state: FSMContext,
                                  callback_data: ButtonCallback):
     usr_id = callback_data.cb_id
+    await state.update_data(usr_id=usr_id)
     text = kb.admin_user_text(usr_id=usr_id)
     data = await state.get_data()
-    markup = kb.admin_user_details_markup(
-        curr_page_data=data.get('start_index'))
+    markup = kb.admin_user_markup(usr_id=usr_id,
+                                  curr_page_data=data.get('adm_start_index'))
 
     await query.message.edit_text(text=text)
     await query.message.edit_reply_markup(reply_markup=markup)
@@ -76,8 +77,8 @@ async def process_report_return(query: CallbackQuery, state: FSMContext,
     await state.update_data(adm_start_index=start_index)
     data = await state.get_data()
     users = data.get('users')
-    start_index = data.get('start_index')
-    curr_page = data.get('curr_page')
+    start_index = data.get('adm_start_index')
+    curr_page = data.get('adm_curr_page')
     markup = kb.users_page_markup(users=users, start_index=start_index,
                                   curr_page=curr_page)
     await query.message.edit_text(text=kb.combined)
@@ -88,15 +89,15 @@ async def process_report_return(query: CallbackQuery, state: FSMContext,
                    ButtonCallback.filter(F.cb_prefix == 'details'))
 async def show_user_reports(query: CallbackQuery, state: FSMContext,
                             callback_data: ButtonCallback):
-    usr_id = callback_data.cb_id
-    tg_id = orm.get_user_tg_id(usr_id)
+    tg_id = callback_data.cb_id
     await query.message.delete()
     reports = orm.get_reports(tg_id=tg_id)
     await state.update_data(reports=reports, start_index=0, curr_page=1)
     data = await state.get_data()
     markup = kb.history_page_markup(reports=data.get('reports'))
-    await query.message.answer(text=kb.user_reports_text(usr_id=usr_id),
-                               reply_markup=markup)
+    await query.message.answer(text=kb.user_reports_text(
+        usr_id=data.get('usr_id')),
+        reply_markup=markup)
 
 
 @dp.callback_query(AdminPanel.panel_viewing,

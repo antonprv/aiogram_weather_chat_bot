@@ -6,7 +6,7 @@ from settings.api_config import *
 
 
 def main():
-    get_city_coord('Калининград')
+    get_weather('Калининград')
 
 
 def get_city_coord(city):

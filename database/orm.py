@@ -87,7 +87,7 @@ def get_all_users():
 
 
 def get_user_data(usr_id):
-    return session.query(User).filter_by(User.id == usr_id)
+    return session.query(User).filter(User.id == usr_id).first()
 
 
 def get_user_tg_id(usr_id):
