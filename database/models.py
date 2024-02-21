@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 
 from sqlalchemy import String, Integer, DateTime, ForeignKey, Column, \
-    BigInteger
+    BigInteger, Float
 from sqlalchemy.orm import relationship, declarative_base
 
 
@@ -27,10 +27,10 @@ class WeatherReport(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     date = Column(DateTime, default=dt.now, nullable=False)
-    temp = Column(Integer, nullable=False)
-    feels_like = Column(Integer, nullable=False)
-    wind_speed = Column(Integer, nullable=False)
-    pressure_mm = Column(String, nullable=False)
+    temp_c = Column(Float, nullable=False)
+    feelslike_c = Column(Float, nullable=False)
+    wind_kph = Column(Float, nullable=False)
+    pressure_mm = Column(Float, nullable=False)
     city = Column(String, nullable=False)
 
     def __repr__(self):

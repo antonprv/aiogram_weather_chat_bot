@@ -45,16 +45,18 @@ def get_user_city(tg_id):
 # По умолчанию функция берёт город, который пользователь указал как свой.
 # Если указать кастомный город, то запишется, что вот такой-то юзер узнавал
 # про погоду вот тут. Отношение one-to-many.
+# Тк съехал на новый апи, при записи нужно конвертировать с mb на mhg
 def save_report(tg_id, city=None):
     if city is None:
         city = get_user_city(tg_id)
     user = __current_user__(tg_id)
     data = get_weather(city)
     new_report = WeatherReport(user_id=user.id,
-                               temp=data["temp"],
-                               feels_like=data["feels_like"],
-                               wind_speed=data["wind_speed"],
-                               pressure_mm=data["pressure_mm"],
+                               temp_c=data["temp_c"],
+                               feelslike_c=data["feelslike_c"],
+                               wind_kph=data["wind_kph"],
+                               pressure_mm=round(
+                                   (data["pressure_mb"] * 0.750062), 2),
                                city=city)
     session.add(new_report)
     session.commit()

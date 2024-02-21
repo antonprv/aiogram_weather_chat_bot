@@ -19,13 +19,13 @@ def get_city_coord(city):
 
 def get_weather(city):
     coordinates = get_city_coord(city).split()
-    payload = {'lat': coordinates[1], 'lon': coordinates[0],
-               'lang': 'ru_RU'}
-    r = requests.get('https://api.weather.yandex.ru/v2/fact',
-                     params=payload, headers=WEATHER_KEY)
+    payload = {'key': WEATHER_KEY, 'q': f'{coordinates[1]},{coordinates[0]}',
+               'lang': 'ru'}
+    r = requests.get('http://api.weatherapi.com/v1/current.json',
+                     params=payload)
     # Преобразуем полученный json файл в многоуровневый словарь
     weather_data = json.loads(r.text)
-    return weather_data
+    return weather_data['current']
 
 
 if __name__ == '__main__':

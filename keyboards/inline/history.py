@@ -87,9 +87,9 @@ def history_report_text(report_id):
     text = (f'Город: {hbold(report.city)},\n'
             f'Дата и время запроса: {report.date.day}.{report.date.month}'
             f'.{report.date.year} в {report.date.hour}:{report.date.minute},\n'
-            f'Температура: {report.temp}°C,\n'
-            f'Ощущалось как {report.feels_like}°C,\n'
-            f'Скорость ветра {report.wind_speed}м/c,\n'
+            f'Температура: {report.temp_c}°C,\n'
+            f'Ощущалось как {report.feelslike_c}°C,\n'
+            f'Скорость ветра {report.wind_kph}м/c,\n'
             f'Давление {report.pressure_mm}мм.')
 
     return text
