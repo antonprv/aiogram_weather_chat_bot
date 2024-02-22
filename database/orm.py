@@ -52,12 +52,13 @@ def save_report(tg_id, city=None):
     user = __current_user__(tg_id)
     data = get_weather(city)
     new_report = WeatherReport(user_id=user.id,
-                               temp_c=data["temp_c"],
-                               feelslike_c=data["feelslike_c"],
-                               wind_kph=data["wind_kph"],
+                               temp_c=data["current"]["temp_c"],
+                               feelslike_c=data["current"]["feelslike_c"],
+                               wind_kph=data["current"]["wind_kph"],
                                pressure_mm=round(
-                                   (data["pressure_mb"] * 0.750062), 2),
-                               city=city)
+                                   (data["current"]["pressure_mb"] * 0.750062), 2),
+                               city=city,
+                               city_recognised=data["location"]["name"])
     session.add(new_report)
     session.commit()
 

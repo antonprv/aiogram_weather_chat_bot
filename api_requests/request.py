@@ -25,7 +25,7 @@ def get_weather(city):
                      params=payload)
     # Преобразуем полученный json файл в многоуровневый словарь
     weather_data = json.loads(r.text)
-    return weather_data['current']
+    return weather_data
 
 
 if __name__ == '__main__':

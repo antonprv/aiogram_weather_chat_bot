@@ -32,6 +32,7 @@ class WeatherReport(Base):
     wind_kph = Column(Float, nullable=False)
     pressure_mm = Column(Float, nullable=False)
     city = Column(String, nullable=False)
+    city_recognised = Column(String, nullable=False)
 
     def __repr__(self):
         return self.city

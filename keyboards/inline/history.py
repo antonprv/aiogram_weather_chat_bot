@@ -3,7 +3,7 @@ from math import ceil
 from aiogram.utils.keyboard import InlineKeyboardBuilder, \
     InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, \
     ReplyKeyboardMarkup
-from aiogram.utils.markdown import hbold
+from aiogram.utils.markdown import hbold, hitalic
 
 from settings.bot_config import HISTORY_ITEMS
 from database import orm
@@ -84,7 +84,8 @@ def history_report_markup(report_id, curr_page_data):
 
 def history_report_text(report_id):
     report = orm.get_report_details(report_id=report_id)
-    text = (f'Город: {hbold(report.city)},\n'
+    text = (f'Город: {hitalic(report.city)} '
+            f'(распознано как {hbold(report.city_recognised)}),\n'
             f'Дата и время запроса: {report.date.day}.{report.date.month}'
             f'.{report.date.year} в {report.date.hour}:{report.date.minute},\n'
             f'Температура: {report.temp_c}°C,\n'

@@ -112,3 +112,19 @@ async def process_report_details(query: CallbackQuery, state: FSMContext,
 
     await query.message.edit_text(text=text)
     await query.message.edit_reply_markup(reply_markup=markup)
+
+
+@dp.callback_query(AdminPanel.panel_viewing,
+                   ButtonCallback.filter(F.cb_prefix == 'b_return'))
+async def process_adm_report_return(query: CallbackQuery, state: FSMContext,
+                                    callback_data: ButtonCallback):
+    start_index = callback_data.cb_id
+    await state.update_data(start_index=start_index)
+    data = await state.get_data()
+    reports = data.get('reports')
+    start_index = data.get('start_index')
+    curr_page = data.get('curr_page')
+    markup = kb.history_page_markup(reports=reports, start_index=start_index,
+                                    curr_page=curr_page)
+    await query.message.edit_text(text=kb.msg1)
+    await query.message.edit_reply_markup(reply_markup=markup)

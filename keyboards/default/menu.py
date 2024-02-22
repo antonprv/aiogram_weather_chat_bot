@@ -30,9 +30,13 @@ def back_to_menu_markup():
 
 def show_weather(city):
     data = request.get_weather(city)
-    return (f'Погода в <b>{hitalic(city)}</b>'
-            f'\nТемпература: {hbold(data["temp_c"])}°C'
-            f'\nОщущается как: {hbold(data["feelslike_c"])}°C'
-            f'\nСкорость ветра: {hbold(data["wind_kph"])}м/c'
+    return (f'Погода в <b>{hitalic(city)} '
+            f'(распознано как {hbold(data["location"]["name"])})</b>'
+            f'\nТемпература: '
+            f'{hbold(data["current"]["temp_c"])}°C'
+            f'\nОщущается как: '
+            f'{hbold(data["current"]["feelslike_c"])}°C'
+            f'\nСкорость ветра: '
+            f'{hbold(data["current"]["wind_kph"])}м/c'
             f'\nДавление: '
-            f'{hbold(round((data["pressure_mb"] * 0.750062), 2))}мм')
+            f'{hbold(round((data["current"]["pressure_mb"] * 0.750062), 2))}мм')
