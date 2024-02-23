@@ -40,6 +40,7 @@ async def process_show_menu(message: Message = None,
 # "Погода в другом месте"
 @dp.message(F.text == kb.weather_other_place)
 async def process_city_start(message: Message, state: FSMContext):
+    await state.clear()
     text = 'Введите название города'
     await message.answer(text=text, reply_markup=kb.back_to_menu_markup())
     await state.set_state(ChoiceCityWeather.waiting_city)
@@ -67,6 +68,7 @@ async def process_city_chosen(message: Message, state: FSMContext):
 # "Установить свой город"
 @dp.message(F.text == kb.weather_set_city)
 async def process_set_user_city_start(message: Message, state: FSMContext):
+    await state.clear()
     text = 'В каком городе проживаете?'
     await message.answer(text=text, reply_markup=kb.back_to_menu_markup())
     await state.set_state(SetUserCity.waiting_user_city)
@@ -90,7 +92,8 @@ async def process_user_city_chosen(message: Message, state: FSMContext):
 
 # "Погода в моём городе"
 @dp.message(F.text == kb.weather_my_city)
-async def process_show_my_weather(message: Message):
+async def process_show_my_weather(message: Message, state: FSMContext):
+    await state.clear()
     city = orm.get_user_city(tg_id=message.from_user.id)
     if city is None:
         text = 'Сначала вам нужно <b>установить свой город</b>.'

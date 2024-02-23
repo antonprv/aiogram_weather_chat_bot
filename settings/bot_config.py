@@ -5,7 +5,7 @@ BOT_TOKEN = '6772645876:AAGelifF-y1lKt8VuzYhX8N0nJQ0APoMZo4'
 HISTORY_ITEMS = 4
 
 # Количество элементов в списке пользователей админа
-ADMIN_HISTORY_ITEMS = 6
+ADMIN_USERS_ITEMS = 6
 
 # Вручную указываем тут список админов бота.
 # Нужно хотя бы 1 раз воспользоваться ботом, чтобы id был в бз.

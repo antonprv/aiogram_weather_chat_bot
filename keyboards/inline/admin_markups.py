@@ -6,18 +6,23 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, \
 
 from database import orm
 from ..callback_class import ButtonCallback
-from settings.bot_config import TG_BOT_ADMINS, ADMIN_HISTORY_ITEMS
+from settings.bot_config import TG_BOT_ADMINS, ADMIN_USERS_ITEMS, \
+    HISTORY_ITEMS
 
-greet = 'Вы перешли в админ-панель'
-user_list = 'Список пользователей:'
-combined = greet + '\n' + user_list
+text_greet = 'Вы перешли в админ-панель'
+text_user_list = 'Список пользователей:'
+text_combined = text_greet + '\n' + text_user_list
 
-administrator = 'Администратор'
+text_administrator = 'Администратор'
 
-next_btn = 'Вперёд ➡'
-back_btn = 'Назад ⬅'
+text_next_btn = 'Вперёд ➡'
+text_back_btn = 'Назад ⬅'
 
-empty = 'Пока нет пользователей :('
+text_no_users = 'Пока нет пользователей :('
+text_empty = 'У пользователя нет запросов'
+
+text_turn_back = 'Вернуться'
+text_see_requests = 'Посмотреть запросы'
 
 
 def user_reports_text(usr_id):
@@ -33,12 +38,12 @@ def check_text_filter(text: str):
 def users_page_markup(users: dict[str], start_index: int = 0,
                       curr_page: int = 1):
     builder = InlineKeyboardBuilder()
-    total_pages: int = ceil(len(users) / ADMIN_HISTORY_ITEMS)
-    end_index = min(start_index + ADMIN_HISTORY_ITEMS, len(users))
+    total_pages: int = ceil(len(users) / ADMIN_USERS_ITEMS)
+    end_index = min(start_index + ADMIN_USERS_ITEMS, len(users))
 
     for user in users[start_index:end_index]:
         if user.tg_id in TG_BOT_ADMINS:
-            text = (f'{user.name} ({administrator})'
+            text = (f'{user.name} ({text_administrator})'
                     f' {user.connection_date.day}.'
                     f'{user.connection_date.month}'
                     f'.{user.connection_date.year}')
@@ -57,13 +62,13 @@ def users_page_markup(users: dict[str], start_index: int = 0,
     btn1 = InlineKeyboardButton(text=f'{curr_page}/{total_pages}',
                                 callback_data='None')
 
-    btn2 = InlineKeyboardButton(text=next_btn,
+    btn2 = InlineKeyboardButton(text=text_next_btn,
                                 callback_data=page_n_cb.pack())
 
     page_b_cb = ButtonCallback(cb_prefix='back', cb_id=start_index)
-    btn3 = InlineKeyboardButton(text=back_btn,
+    btn3 = InlineKeyboardButton(text=text_back_btn,
                                 callback_data=page_b_cb.pack())
-    btn4 = InlineKeyboardButton(text=empty,
+    btn4 = InlineKeyboardButton(text=text_no_users,
                                 callback_data='None')
 
     if total_pages == 0:
@@ -86,9 +91,9 @@ def admin_user_markup(usr_id, curr_page_data):
     tg_id = orm.get_user_tg_id(usr_id=usr_id)
     back_btn_cb = ButtonCallback(cb_prefix='return', cb_id=curr_page_data)
     details_btn_cb = ButtonCallback(cb_prefix='details', cb_id=tg_id)
-    btn1 = InlineKeyboardButton(text='Вернуться',
+    btn1 = InlineKeyboardButton(text=text_turn_back,
                                 callback_data=back_btn_cb.pack())
-    btn2 = InlineKeyboardButton(text='Посмотреть запросы',
+    btn2 = InlineKeyboardButton(text=text_see_requests,
                                 callback_data=details_btn_cb.pack())
     markup = InlineKeyboardMarkup(inline_keyboard=[[btn1], [btn2]])
     return markup
@@ -96,7 +101,7 @@ def admin_user_markup(usr_id, curr_page_data):
 
 def admin_report_details_markup(curr_page_data):
     back_btn_cb = ButtonCallback(cb_prefix='b_return', cb_id=curr_page_data)
-    btn1 = InlineKeyboardButton(text='Вернуться',
+    btn1 = InlineKeyboardButton(text=text_turn_back,
                                 callback_data=back_btn_cb.pack())
     markup = InlineKeyboardMarkup(inline_keyboard=[[btn1]])
     return markup
@@ -117,8 +122,8 @@ def admin_user_text(usr_id):
     return text
 
 
-def history_page_markup(reports: dict[str], start_index: int = 0,
-                        curr_page: int = 1):
+def adm_history_page_markup(reports: dict[str], start_index: int = 0,
+                            curr_page: int = 1, usr_id: int = 1):
     builder = InlineKeyboardBuilder()
     total_pages: int = ceil(len(reports) / HISTORY_ITEMS)
     end_index = min(start_index + HISTORY_ITEMS, len(reports))
@@ -132,31 +137,34 @@ def history_page_markup(reports: dict[str], start_index: int = 0,
 
     builder.adjust(1)
 
-    page_n_cb = ButtonCallback(cb_prefix='next', cb_id=start_index)
+    page_n_cb = ButtonCallback(cb_prefix='h_next', cb_id=start_index)
 
     btn1 = InlineKeyboardButton(text=f'{curr_page}/{total_pages}',
                                 callback_data='None')
 
-    btn2 = InlineKeyboardButton(text=next_btn,
+    btn2 = InlineKeyboardButton(text=text_next_btn,
                                 callback_data=page_n_cb.pack())
 
-    page_b_cb = ButtonCallback(cb_prefix='back', cb_id=start_index)
-    btn3 = InlineKeyboardButton(text=back_btn,
+    page_b_cb = ButtonCallback(cb_prefix='h_back', cb_id=start_index)
+    btn3 = InlineKeyboardButton(text=text_back_btn,
                                 callback_data=page_b_cb.pack())
-    btn4 = InlineKeyboardButton(text=empty,
+    btn4 = InlineKeyboardButton(text=text_empty,
                                 callback_data='None')
-    btn5 =
+    page_t_b_cb = ButtonCallback(cb_prefix='h_turn_back', cb_id=usr_id)
+    btn5 = InlineKeyboardButton(text=text_turn_back,
+                                callback_data=page_t_b_cb.pack())
 
     if total_pages == 0:
-        markup = InlineKeyboardMarkup(inline_keyboard=[[btn4]])
+        markup = InlineKeyboardMarkup(inline_keyboard=[[btn4], [btn5]])
     elif total_pages == 1:
-        markup = InlineKeyboardMarkup(inline_keyboard=[[btn1]])
+        markup = InlineKeyboardMarkup(inline_keyboard=[[btn1], [btn5]])
     elif curr_page == 1:
-        markup = InlineKeyboardMarkup(inline_keyboard=[[btn1, btn2]])
+        markup = InlineKeyboardMarkup(inline_keyboard=[[btn1, btn2], [btn5]])
     elif curr_page == total_pages:
-        markup = InlineKeyboardMarkup(inline_keyboard=[[btn3, btn1]])
+        markup = InlineKeyboardMarkup(inline_keyboard=[[btn3, btn1], [btn5]])
     else:
-        markup = InlineKeyboardMarkup(inline_keyboard=[[btn3, btn1, btn2]])
+        markup = InlineKeyboardMarkup(inline_keyboard=[[btn3, btn1, btn2],
+                                                       [btn5]])
 
     builder.attach(InlineKeyboardBuilder.from_markup(markup))
 

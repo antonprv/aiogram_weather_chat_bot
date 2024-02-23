@@ -18,6 +18,7 @@ from loader import bot
 
 @dp.message(F.text == kb.weather_history)
 async def process_get_reports(message: Message, state: FSMContext):
+    await state.clear()
     tg_id = message.from_user.id
     reports = orm.get_reports(tg_id=tg_id)
     await state.set_state(ShowHistory.history_viewing)
