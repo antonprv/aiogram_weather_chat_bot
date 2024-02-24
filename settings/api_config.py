@@ -1,3 +1,5 @@
-GEO_KEY: str = '6e0a4853-da0e-4814-94f3-47145d2ab6f3'
+# API-ключ Яндекс Геокодера:
+GEO_KEY: str = ''
 
-WEATHER_KEY: str = '169f4082fbd044c18e072133242102'
+# API-ключ weatherapi.com:
+WEATHER_KEY: str = ''
