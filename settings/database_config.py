@@ -1,1 +1,2 @@
-POSTGRE_URL = 'postgresql://postgres:postgres@localhost:5432/postgres'
+# Ссылка на базу данных PostgreSQL.
+POSTGRE_URL = ''
