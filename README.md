@@ -4,7 +4,8 @@
 1. SQLAlchemy
 2. Aiogram
 3. PostgreSQL
-4. API Яндекс Геокодера в связке с weatherapi.com
+4. Docker и Docker Compose
+5. API Яндекс Геокодера в связке с API weatherapi.com
 
 **Приветствие и меню:**
 
